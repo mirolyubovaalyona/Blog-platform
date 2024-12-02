@@ -14,7 +14,9 @@ class PostController extends Controller
     public function index()
     {
         $posts = Post::with('user')->latest()->get();
-        return Inertia::render('Posts/Index', ['posts' => $posts]);
+        return Inertia::render('Posts/Index', [
+            'posts' => $posts
+        ]);
     }
 
     /**
@@ -36,7 +38,9 @@ class PostController extends Controller
             'status' => 'required|in:draft,published',
         ]);
 
-        $request->user()->posts()->create($request->all());
+        // Создание поста, привязывая к текущему пользователю
+        $request->user()->posts()->create($request->only(['title', 'content', 'status']));
+
         return redirect()->route('posts.index')->with('success', 'Post created successfully.');
     }
 
@@ -45,8 +49,10 @@ class PostController extends Controller
      */
     public function show(string $id)
     {
-        $post = Post::findOrFail($id);
-        return view('posts.show', compact('post'));
+        $post = Post::with('user')->findOrFail($id);
+        return Inertia::render('Posts/Show', [
+            'post' => $post
+        ]);
     }
 
     /**
@@ -55,7 +61,9 @@ class PostController extends Controller
     public function edit(string $id)
     {
         $post = Post::findOrFail($id);
-        return view('posts.edit', compact('post'));
+        return Inertia::render('Posts/Edit', [
+            'post' => $post
+        ]);
     }
 
     /**
@@ -69,7 +77,7 @@ class PostController extends Controller
         ]);
 
         $post = Post::findOrFail($id);
-        $post->update($request->all());
+        $post->update($request->only(['title', 'content', 'status']));
 
         return redirect()->route('posts.index')->with('success', 'Post updated successfully.');
     }

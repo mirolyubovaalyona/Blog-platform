@@ -1,21 +1,44 @@
 import React, { useState } from 'react';
-import { Inertia } from '@inertiajs/inertia';
+import { useForm } from '@inertiajs/react';
 
 const Create = () => {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+  const { data, setData, post, processing, errors } = useForm({
+    title: '',
+    content: '',
+  });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    Inertia.post('/posts', { title, content, status: 'draft' });
+    post('/posts');
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" />
-      <textarea value={content} onChange={(e) => setContent(e.target.value)} placeholder="Content"></textarea>
-      <button type="submit">Create</button>
-    </form>
+    <div style={{ padding: '20px' }}>
+      <h1>Create New Post</h1>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Title:</label>
+          <input
+            type="text"
+            value={data.title}
+            onChange={(e) => setData('title', e.target.value)}
+          />
+          {errors.title && <p style={{ color: 'red' }}>{errors.title}</p>}
+        </div>
+        <div>
+          <label>Content:</label>
+          <textarea
+            rows="6"
+            value={data.content}
+            onChange={(e) => setData('content', e.target.value)}
+          ></textarea>
+          {errors.content && <p style={{ color: 'red' }}>{errors.content}</p>}
+        </div>
+        <button type="submit" disabled={processing}>
+          Create Post
+        </button>
+      </form>
+    </div>
   );
 };
 
